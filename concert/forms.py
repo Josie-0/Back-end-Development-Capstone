@@ -4,12 +4,12 @@ from django import forms
 
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(
+    username = forms.EmailField(
         max_length=100,
         required=True,
         widget=forms.TextInput(
             attrs={
-                "placeholder": "Username",
+                "placeholder": "Email",
                 "class": "form-control",
             }
         ),
@@ -33,20 +33,21 @@ class LoginForm(AuthenticationForm):
         fields = ["username", "password"]
 
 
-class SignUpForm(AuthenticationForm):
-    username = forms.CharField(
+class SignUpForm(UserCreationForm):
+    username = forms.EmailField(
         max_length=100,
         required=True,
-        widget=forms.TextInput(
+        widget=forms.EmailInput(
             attrs={
-                "placeholder": "Username",
+                "placeholder": "Email",
                 "class": "form-control",
             }
         ),
     )
-    password = forms.CharField(
+    password1 = forms.CharField(
         max_length=50,
         required=True,
+        label="Password",
         widget=forms.PasswordInput(
             attrs={
                 "placeholder": "Password",
@@ -54,11 +55,32 @@ class SignUpForm(AuthenticationForm):
                 "data-toggle": "password",
                 "id": "password",
                 "name": "password",
-                "minlength": "3"
+                "minlength": "8"
+            }
+        ),
+    )
+    password2 = forms.CharField(
+        max_length=50,
+        required=True,
+        label="Confirm Password",
+        widget=forms.PasswordInput(
+            attrs={
+                "placeholder": "Confirm Password",
+                "class": "form-control",
+                "data-toggle": "password",
+                "id": "password",
+                "name": "password",
+                "minlength": "8"
             }
         ),
     )
 
     class Meta:
         model = User
-        fields = ["username", "password"]
+        fields = ["username", "password1", "password2"]
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Email already exists")
+        return username

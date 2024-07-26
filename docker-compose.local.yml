@@ -1,0 +1,13 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_ENV=development
+      - DEBUG=true
+#      - SECRET_KEY=your-development-secret-key
+    command: python manage.py runserver 0.0.0.0:8000
